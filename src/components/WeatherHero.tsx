@@ -38,7 +38,26 @@ export const WeatherHero: React.FC<WeatherHeroProps> = ({ data }) => {
     <div className="w-full max-w-4xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-5 duration-700">
       <GlassCard className="flex flex-col md:flex-row items-center justify-between gap-8 py-10">
         <div className="flex flex-col items-center md:items-start space-y-2">
-          <h2 className="text-3xl font-bold text-white/90">{data.location}</h2>
+          <div className="flex items-center gap-3">
+            <h2 className="text-3xl font-bold text-white/90">{data.location}</h2>
+            {data.aqi && (
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                data.aqi === 1 ? "bg-green-500/20 text-green-400 border border-green-500/30" :
+                data.aqi === 2 ? "bg-lime-500/20 text-lime-400 border border-lime-500/30" :
+                data.aqi === 3 ? "bg-orange-500/20 text-orange-400 border border-orange-500/30" :
+                data.aqi === 4 ? "bg-red-500/20 text-red-400 border border-red-500/30" :
+                "bg-purple-500/20 text-purple-400 border border-purple-500/30"
+              }`}>
+                AQI: {
+                  data.aqi === 1 ? "Good" :
+                  data.aqi === 2 ? "Fair" :
+                  data.aqi === 3 ? "Moderate" :
+                  data.aqi === 4 ? "Poor" :
+                  "Very Poor"
+                }
+              </span>
+            )}
+          </div>
           <div className="flex items-center gap-4">
             <span className="text-8xl font-black text-transparent bg-clip-text bg-gradient-to-br from-white to-white/40 leading-none">
               {data.temperature}°

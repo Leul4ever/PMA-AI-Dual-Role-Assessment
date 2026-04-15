@@ -47,9 +47,28 @@ export default function Home() {
         </div>
         
         <div className="hidden md:flex items-center gap-6 text-sm text-white/40">
-          <p className="hover:text-white transition-colors cursor-pointer">Live Satellite</p>
-          <p className="hover:text-white transition-colors cursor-pointer">Air Quality</p>
-          <p className="hover:text-white transition-colors cursor-pointer">Global Map</p>
+          <button 
+            onClick={() => {
+              if (data?.weather.lat && data?.weather.lon) {
+                window.open(`https://zoom.earth/maps/satellite/#view=${data.weather.lat},${data.weather.lon},10z`, '_blank');
+              }
+            }}
+            className="hover:text-white transition-colors cursor-pointer"
+          >
+            Live Satellite
+          </button>
+          <button 
+            onClick={() => document.getElementById('weather-hero')?.scrollIntoView({ behavior: 'smooth' })}
+            className="hover:text-white transition-colors cursor-pointer"
+          >
+            Air Quality
+          </button>
+          <button 
+            onClick={() => document.getElementById('weather-map')?.scrollIntoView({ behavior: 'smooth' })}
+            className="hover:text-white transition-colors cursor-pointer"
+          >
+            Global Map
+          </button>
         </div>
       </header>
 
@@ -68,10 +87,14 @@ export default function Home() {
 
         {data && (
           <>
-            <WeatherHero data={data.weather} />
+            <div id="weather-hero">
+              <WeatherHero data={data.weather} />
+            </div>
             <WeatherInsights insights={data.insights} />
             <ForecastGrid forecast={data.weather.forecast} />
-            <WeatherMap location={data.weather.location} lat={data.weather.lat} lon={data.weather.lon} />
+            <div id="weather-map">
+              <WeatherMap location={data.weather.location} lat={data.weather.lat} lon={data.weather.lon} />
+            </div>
             <WeatherVideos videos={data.videos} />
           </>
         )}

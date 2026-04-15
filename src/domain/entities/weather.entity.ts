@@ -9,6 +9,7 @@ export interface WeatherEntity {
   pressure: number;
   lat?: number;
   lon?: number;
+  aqi?: number;
   forecast?: ForecastDayEntity[];
 }
 

@@ -29,18 +29,26 @@ export class OpenWeatherClient implements IWeatherProvider {
     }
 
     try {
-      // Fetch current weather and forecast in parallel
-      const [currentRes, forecastRes] = await Promise.all([
-        fetch(`${this.baseUrl}/weather?q=${location}&units=metric&appid=${this.apiKey}`),
-        fetch(`${this.baseUrl}/forecast?q=${location}&units=metric&appid=${this.apiKey}`)
+      const currentRes = await fetch(`${this.baseUrl}/weather?q=${location}&units=metric&appid=${this.apiKey}`);
+      if (!currentRes.ok) {
+        throw new Error(`Current weather fetch failed: ${currentRes.status}`);
+      }
+      const currentData = await currentRes.json();
+      const { lat, lon } = currentData.coord;
+
+      // Fetch forecast and pollution in parallel using coordinates
+      const [forecastRes, pollutionRes] = await Promise.all([
+        fetch(`${this.baseUrl}/forecast?lat=${lat}&lon=${lon}&units=metric&appid=${this.apiKey}`),
+        fetch(`${this.baseUrl}/air_pollution?lat=${lat}&lon=${lon}&appid=${this.apiKey}`)
       ]);
 
-      if (!currentRes.ok || !forecastRes.ok) {
-        throw new Error(`Weather fetch failed (Current: ${currentRes.status}, Forecast: ${forecastRes.status})`);
+      if (!forecastRes.ok) {
+        throw new Error(`Forecast fetch failed: ${forecastRes.status}`);
       }
 
-      const currentData = await currentRes.json();
       const forecastData = await forecastRes.json();
+      const pollutionData = pollutionRes.ok ? await pollutionRes.json() : null;
+      const aqi = pollutionData?.list?.[0]?.main?.aqi;
 
       // Process forecast: Pick one measurement per day (roughly at noon)
       const dailyForecast = forecastData.list
@@ -64,6 +72,7 @@ export class OpenWeatherClient implements IWeatherProvider {
         pressure: currentData.main.pressure,
         lat: currentData.coord?.lat,
         lon: currentData.coord?.lon,
+        aqi: aqi,
         forecast: dailyForecast
       };
     } catch (error) {
