@@ -79,11 +79,9 @@ export default function Home() {
 
       {/* Footer / Required Branding */}
       <footer className="w-full p-8 px-10 flex flex-col md:flex-row items-center justify-between border-t border-white/5 bg-black/20 backdrop-blur-xl">
-        <div className="flex flex-col items-center md:items-start space-y-1 text-center md:text-left">
-          <p className="text-white/60 text-sm font-medium">Developed by Antigravity</p>
-          <p className="text-white/30 text-xs max-w-sm">
-            Part of the PM Accelerator AI Engineer Assessment. Unified Weather & Media Intelligence Platform.
-          </p>
+        <div className="flex items-center gap-2">
+          <Zap className="text-accent/40" size={16} />
+          <p className="text-white/20 text-xs font-medium tracking-widest uppercase">WeatherSuite Intelligence</p>
         </div>
         
         <div className="mt-6 md:mt-0 flex items-center gap-8 text-white/40 text-xs uppercase tracking-widest">
