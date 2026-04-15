@@ -101,16 +101,35 @@ export default function Home() {
       </main>
 
       {/* Footer / Required Branding */}
-      <footer className="w-full p-8 px-10 flex flex-col md:flex-row items-center justify-between border-t border-white/5 bg-black/20 backdrop-blur-xl">
-        <div className="flex items-center gap-2">
-          <Zap className="text-accent/40" size={16} />
-          <p className="text-white/20 text-xs font-medium tracking-widest uppercase">WeatherSuite Intelligence</p>
+      <footer className="w-full p-10 flex flex-col items-center gap-12 border-t border-white/5 bg-black/40 backdrop-blur-xl">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 w-full max-w-6xl">
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <Zap className="text-accent" size={20} />
+              <h3 className="text-lg font-bold text-white/90">WeatherSuite Intelligence</h3>
+            </div>
+            <p className="text-white/40 text-sm leading-relaxed max-w-md">
+              A high-performance weather intelligence platform developed by <span className="text-white/80 font-semibold">Leul Abera</span> for the PM Accelerator AI Engineer Intern Assessment. 
+              Built with Next.js, Gemini AI, and Clean Architecture principles.
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            <h3 className="text-sm font-bold text-accent uppercase tracking-widest">About PM Accelerator</h3>
+            <p className="text-white/30 text-xs leading-relaxed italic">
+              The Product Manager Accelerator program is designed to help students and professionals land their dream product management jobs in tech. 
+              The program provides hands-on experience by having participants build real-world AI products, preparing them for the most competitive roles in the industry.
+            </p>
+          </div>
         </div>
         
-        <div className="mt-6 md:mt-0 flex items-center gap-8 text-white/40 text-xs uppercase tracking-widest">
-          <span className="hover:text-accent cursor-pointer transition-colors">Privacy</span>
-          <span className="hover:text-accent cursor-pointer transition-colors">Terms</span>
-          <span className="hover:text-accent cursor-pointer transition-colors">Support</span>
+        <div className="flex flex-col md:flex-row items-center justify-between w-full max-w-6xl pt-8 border-t border-white/5 text-white/20 text-[10px] uppercase tracking-[0.2em]">
+          <p>© 2024 WeatherSuite Intelligence • Leul Abera</p>
+          <div className="flex gap-8 mt-4 md:mt-0">
+            <span className="hover:text-accent cursor-pointer transition-colors">Privacy</span>
+            <span className="hover:text-accent cursor-pointer transition-colors">Terms</span>
+            <span className="hover:text-accent cursor-pointer transition-colors">Support</span>
+          </div>
         </div>
       </footer>
     </div>

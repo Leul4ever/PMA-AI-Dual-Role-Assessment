@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { History, Trash2, Download, X } from "lucide-react";
+import { History, Trash2, Download, X, Edit2, Check, Trash } from "lucide-react";
 
 interface WeatherRecord {
   id: number;
@@ -14,6 +14,8 @@ interface WeatherRecord {
 export const HistorySidebar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [history, setHistory] = useState<WeatherRecord[]>([]);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editValue, setEditValue] = useState("");
 
   const fetchHistory = async () => {
     const res = await fetch("/api/history");
@@ -28,8 +30,29 @@ export const HistorySidebar: React.FC = () => {
   }, [isOpen]);
 
   const clearHistory = async () => {
-    await fetch("/api/weather", { method: "DELETE" });
+    if (!confirm("Are you sure you want to clear all history?")) return;
+    await fetch("/api/history", { method: "DELETE" }); // This should clear all if no ID
     setHistory([]);
+  };
+
+  const deleteRecord = async (id: number) => {
+    await fetch(`/api/history?id=${id}`, { method: "DELETE" });
+    setHistory(history.filter(r => r.id !== id));
+  };
+
+  const startEdit = (record: WeatherRecord) => {
+    setEditingId(record.id);
+    setEditValue(record.location);
+  };
+
+  const saveEdit = async (id: number) => {
+    await fetch("/api/history", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id, location: editValue }),
+    });
+    setHistory(history.map(r => r.id === id ? { ...r, location: editValue } : r));
+    setEditingId(null);
   };
 
   const exportData = (format: "json" | "csv") => {
@@ -112,13 +135,44 @@ export const HistorySidebar: React.FC = () => {
                   className="p-4 bg-white/5 border border-white/5 rounded-xl hover:border-white/20 transition-all group"
                 >
                   <div className="flex justify-between items-start">
-                    <div>
-                      <h4 className="font-semibold text-white/90">{record.location}</h4>
+                    <div className="flex-1 mr-2">
+                      {editingId === record.id ? (
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            value={editValue}
+                            onChange={(e) => setEditValue(e.target.value)}
+                            className="w-full bg-white/10 border border-white/10 rounded px-2 py-1 text-sm text-white focus:outline-none focus:border-accent"
+                            autoFocus
+                          />
+                          <button onClick={() => saveEdit(record.id)} className="text-green-400 hover:text-green-300">
+                            <Check size={16} />
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <h4 className="font-semibold text-white/90">{record.location}</h4>
+                          <button 
+                            onClick={() => startEdit(record)}
+                            className="opacity-0 group-hover:opacity-100 text-white/20 hover:text-accent transition-all"
+                          >
+                            <Edit2 size={12} />
+                          </button>
+                        </div>
+                      )}
                       <p className="text-xs text-white/40">
                         {new Date(record.recordedAt).toLocaleString()}
                       </p>
                     </div>
-                    <span className="text-lg font-bold text-accent">{record.temperature}°</span>
+                    <div className="flex flex-col items-end gap-2">
+                      <span className="text-lg font-bold text-accent">{record.temperature}°</span>
+                      <button 
+                        onClick={() => deleteRecord(record.id)}
+                        className="opacity-0 group-hover:opacity-100 text-white/20 hover:text-red-400 transition-all"
+                      >
+                        <Trash size={14} />
+                      </button>
+                    </div>
                   </div>
                   <p className="text-xs text-white/60 mt-2 uppercase tracking-tighter">
                     {record.condition}

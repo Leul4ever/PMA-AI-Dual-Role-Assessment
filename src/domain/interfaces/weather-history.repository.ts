@@ -5,4 +5,5 @@ export interface IWeatherHistoryRepository {
   getHistory(limit?: number): Promise<WeatherHistoryEntity[]>;
   clearAll(): Promise<void>;
   deleteById(id: number): Promise<void>;
+  updateLocation(id: number, newLocation: string): Promise<void>;
 }

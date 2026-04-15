@@ -14,4 +14,23 @@ export class ManageHistoryUseCase {
   async deleteRecord(id: number) {
     return this.historyRepository.deleteById(id);
   }
+
+  async updateRecord(id: number, newLocation: string) {
+    return this.historyRepository.updateLocation(id, newLocation);
+  }
+
+  async exportData(format: "json" | "csv") {
+    const history = await this.historyRepository.getHistory(100); // Export last 100 records
+    
+    if (format === "json") {
+      return JSON.stringify(history, null, 2);
+    } else {
+      // Very simple CSV conversion
+      const headers = "ID,Location,Temp,Condition,Date\n";
+      const rows = history
+        .map(r => `${r.id},"${r.location}",${r.temperature},"${r.condition}",${r.recordedAt?.toISOString()}`)
+        .join("\n");
+      return headers + rows;
+    }
+  }
 }

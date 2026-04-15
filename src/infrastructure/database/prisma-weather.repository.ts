@@ -47,4 +47,11 @@ export class PrismaWeatherRepository implements IWeatherHistoryRepository {
       where: { id },
     });
   }
+
+  async updateLocation(id: number, newLocation: string): Promise<void> {
+    await prisma.weatherRecord.update({
+      where: { id },
+      data: { location: newLocation },
+    });
+  }
 }
