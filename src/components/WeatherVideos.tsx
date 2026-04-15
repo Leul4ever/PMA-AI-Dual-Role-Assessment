@@ -1,4 +1,5 @@
 import React from "react";
+import Image from "next/image";
 import { VideoEntity } from "@/domain/entities/weather.entity";
 import { GlassCard } from "./ui/GlassCard";
 import { Play } from "lucide-react";
@@ -25,10 +26,12 @@ export const WeatherVideos: React.FC<WeatherVideosProps> = ({ videos }) => {
               className="block cursor-pointer"
             >
               <div className="relative aspect-video">
-                <img
+                <Image
                   src={video.thumbnail}
                   alt={video.title}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  fill
+                  className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  sizes="(max-width: 768px) 100vw, 50vw"
                 />
                 <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors" />
                 <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">

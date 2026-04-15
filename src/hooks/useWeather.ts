@@ -6,11 +6,15 @@ export const useWeather = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchWeather = async (city: string) => {
+  const fetchWeather = async (params: string | { lat: number; lon: number }) => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`/api/weather?city=${encodeURIComponent(city)}`);
+      const url = typeof params === "string" 
+        ? `/api/weather?city=${encodeURIComponent(params)}`
+        : `/api/weather?lat=${params.lat}&lon=${params.lon}`;
+        
+      const response = await fetch(url);
       if (!response.ok) throw new Error("Could not find that location");
       const result = await response.json();
       setData(result);

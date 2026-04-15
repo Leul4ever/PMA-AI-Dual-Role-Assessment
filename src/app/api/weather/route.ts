@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { OpenWeatherClient } from "@/infrastructure/api/open-weather.client";
 import { YouTubeClient } from "@/infrastructure/api/youtube.client";
+import { GeminiClient } from "@/infrastructure/api/gemini.client";
 import { PrismaWeatherRepository } from "@/infrastructure/database/prisma-weather.repository";
 import { GetWeatherDashboardUseCase } from "@/application/use-cases/get-weather-dashboard.use-case";
 import { ManageHistoryUseCase } from "@/application/use-cases/manage-history.use-case";
@@ -9,24 +10,35 @@ import { ManageHistoryUseCase } from "@/application/use-cases/manage-history.use
 const weatherProvider = new OpenWeatherClient();
 const videoProvider = new YouTubeClient();
 const historyRepo = new PrismaWeatherRepository();
+const aiProvider = new GeminiClient();
 
 const getWeatherDashboard = new GetWeatherDashboardUseCase(
   weatherProvider,
   videoProvider,
-  historyRepo
+  historyRepo,
+  aiProvider
 );
 
 const manageHistory = new ManageHistoryUseCase(historyRepo);
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
-  const city = searchParams.get("city");
+  let city = searchParams.get("city");
+  const lat = searchParams.get("lat");
+  const lon = searchParams.get("lon");
 
-  if (!city) {
-    return NextResponse.json({ error: "City is required" }, { status: 400 });
+  if (!city && (!lat || !lon)) {
+    return NextResponse.json({ error: "City or Coordinates are required" }, { status: 400 });
   }
 
   try {
+    // If we have coordinates but no city, reverse geocode first
+    if (!city && lat && lon) {
+      city = await weatherProvider.reverseGeocode(parseFloat(lat), parseFloat(lon));
+    }
+
+    if (!city) throw new Error("Could not determine city from coordinates");
+
     const result = await getWeatherDashboard.execute(city);
     return NextResponse.json(result);
   } catch (error) {

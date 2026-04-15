@@ -12,8 +12,11 @@ export const useGeolocation = () => {
 
   useEffect(() => {
     if (!navigator.geolocation) {
-      setError("Geolocation is not supported by your browser");
-      setLoading(false);
+      // Use setTimeout to ensure the state update is asynchronous and avoids cascading renders
+      setTimeout(() => {
+        setError("Geolocation is not supported by your browser");
+        setLoading(false);
+      }, 0);
       return;
     }
 

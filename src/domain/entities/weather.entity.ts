@@ -7,6 +7,8 @@ export interface WeatherEntity {
   humidity: number;
   windSpeed: number;
   pressure: number;
+  lat?: number;
+  lon?: number;
   forecast?: ForecastDayEntity[];
 }
 
@@ -27,6 +29,7 @@ export interface VideoEntity {
 export interface WeatherDashboardEntity {
   weather: WeatherEntity;
   videos: VideoEntity[];
+  insights?: string;
   timestamp: string;
 }
 

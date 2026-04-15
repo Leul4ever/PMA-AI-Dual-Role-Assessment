@@ -29,27 +29,67 @@ export class OpenWeatherClient implements IWeatherProvider {
     }
 
     try {
-      const response = await fetch(
-        `${this.baseUrl}/weather?q=${location}&units=metric&appid=${this.apiKey}`
-      );
+      // Fetch current weather and forecast in parallel
+      const [currentRes, forecastRes] = await Promise.all([
+        fetch(`${this.baseUrl}/weather?q=${location}&units=metric&appid=${this.apiKey}`),
+        fetch(`${this.baseUrl}/forecast?q=${location}&units=metric&appid=${this.apiKey}`)
+      ]);
 
-      if (!response.ok) throw new Error("Weather fetch failed");
+      if (!currentRes.ok || !forecastRes.ok) {
+        throw new Error(`Weather fetch failed (Current: ${currentRes.status}, Forecast: ${forecastRes.status})`);
+      }
 
-      const data = await response.json();
-      
+      const currentData = await currentRes.json();
+      const forecastData = await forecastRes.json();
+
+      // Process forecast: Pick one measurement per day (roughly at noon)
+      const dailyForecast = forecastData.list
+        .filter((item: { dt_txt: string }) => item.dt_txt.includes("12:00:00"))
+        .slice(0, 5)
+        .map((item: { dt_txt: string; main: { temp: number }; weather: { main: string; icon: string }[] }) => ({
+          date: item.dt_txt.split(" ")[0],
+          avgTemp: Math.round(item.main.temp),
+          condition: item.weather[0].main,
+          icon: item.weather[0].icon,
+        }));
+
       return {
-        location: data.name,
-        temperature: Math.round(data.main.temp),
-        condition: data.weather[0].main,
-        description: data.weather[0].description,
-        icon: data.weather[0].icon,
-        humidity: data.main.humidity,
-        windSpeed: data.wind.speed,
-        pressure: data.main.pressure,
+        location: currentData.name,
+        temperature: Math.round(currentData.main.temp),
+        condition: currentData.weather[0].main,
+        description: currentData.weather[0].description,
+        icon: currentData.weather[0].icon,
+        humidity: currentData.main.humidity,
+        windSpeed: currentData.wind.speed,
+        pressure: currentData.main.pressure,
+        lat: currentData.coord?.lat,
+        lon: currentData.coord?.lon,
+        forecast: dailyForecast
       };
     } catch (error) {
       console.error("OpenWeatherClient Error:", error);
+      // Fallback to mock with the requested location name
       return { ...MOCK_WEATHER, location };
+    }
+  }
+
+  async reverseGeocode(lat: number, lon: number): Promise<string> {
+    if (!this.apiKey || this.apiKey === "MOCK") {
+      return "London"; // Standard mock fallback
+    }
+
+    try {
+      const response = await fetch(
+        `https://api.openweathermap.org/geo/1.0/reverse?lat=${lat}&lon=${lon}&limit=1&appid=${this.apiKey}`
+      );
+
+      if (!response.ok) throw new Error("Reverse geocoding failed");
+
+      const data = await response.json();
+      return data[0]?.name || "London";
+    } catch (error) {
+      console.error("ReverseGeocode Error:", error);
+      return "London";
     }
   }
 }

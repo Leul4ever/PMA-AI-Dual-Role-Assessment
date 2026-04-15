@@ -1,18 +1,36 @@
 import React from "react";
+import Image from "next/image";
 import { WeatherEntity } from "@/domain/entities/weather.entity";
 import { GlassCard } from "./ui/GlassCard";
-import { Droplets, Wind, Gauge, CloudRain, Sun, Cloud, CloudLightning } from "lucide-react";
+import { Droplets, Wind, Gauge, CloudRain, Sun, Cloud } from "lucide-react";
 
 interface WeatherHeroProps {
   data: WeatherEntity;
 }
 
-const WeatherIcon = ({ condition, size = 64 }: { condition: string; size?: number }) => {
+const WeatherIcon = ({ condition, icon, size = 64 }: { condition: string; icon: string; size?: number }) => {
   const cond = condition.toLowerCase();
-  if (cond.includes("sun") || cond.includes("clear")) return <Sun size={size} className="text-yellow-400" />;
-  if (cond.includes("rain") || cond.includes("drizzle")) return <CloudRain size={size} className="text-blue-400" />;
-  if (cond.includes("storm") || cond.includes("thunder")) return <CloudLightning size={size} className="text-purple-400" />;
-  return <Cloud size={size} className="text-slate-300" />;
+  
+  return (
+    <div className="relative">
+      <Image 
+        src={`https://openweathermap.org/img/wn/${icon}@4x.png`}
+        alt={condition}
+        width={size}
+        height={size}
+        className="drop-shadow-2xl z-10"
+      />
+      <div className="absolute inset-0 blur-2xl opacity-40 animate-pulse">
+        {cond.includes("sun") || cond.includes("clear") ? (
+          <Sun size={size} className="text-yellow-400" />
+        ) : cond.includes("rain") ? (
+          <CloudRain size={size} className="text-blue-400" />
+        ) : (
+          <Cloud size={size} className="text-white" />
+        )}
+      </div>
+    </div>
+  );
 };
 
 export const WeatherHero: React.FC<WeatherHeroProps> = ({ data }) => {
@@ -33,7 +51,7 @@ export const WeatherHero: React.FC<WeatherHeroProps> = ({ data }) => {
         </div>
         
         <div className="flex items-center justify-center p-6 bg-white/5 rounded-3xl backdrop-blur-sm border border-white/5">
-          <WeatherIcon condition={data.condition} size={120} />
+          <WeatherIcon condition={data.condition} icon={data.icon} size={120} />
         </div>
       </GlassCard>
 

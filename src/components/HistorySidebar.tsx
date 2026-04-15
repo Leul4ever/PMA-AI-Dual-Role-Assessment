@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from "react";
 import { History, Trash2, Download, X } from "lucide-react";
-import { GlassCard } from "./ui/GlassCard";
 
 interface WeatherRecord {
   id: number;
@@ -23,7 +22,9 @@ export const HistorySidebar: React.FC = () => {
   };
 
   useEffect(() => {
-    if (isOpen) fetchHistory();
+    if (isOpen) {
+      fetchHistory();
+    }
   }, [isOpen]);
 
   const clearHistory = async () => {
@@ -34,7 +35,7 @@ export const HistorySidebar: React.FC = () => {
   const exportData = (format: "json" | "csv") => {
     let content = "";
     let mimeType = "";
-    let fileName = `weather_history.${format}`;
+    const fileName = `weather_history.${format}`;
 
     if (format === "json") {
       content = JSON.stringify(history, null, 2);

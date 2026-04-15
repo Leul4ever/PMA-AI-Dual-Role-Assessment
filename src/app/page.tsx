@@ -6,25 +6,31 @@ import { WeatherHero } from "@/components/WeatherHero";
 import { ForecastGrid } from "@/components/ForecastGrid";
 import { WeatherVideos } from "@/components/WeatherVideos";
 import { WeatherMap } from "@/components/WeatherMap";
+import { WeatherInsights } from "@/components/WeatherInsights";
 import { HistorySidebar } from "@/components/HistorySidebar";
 import { useWeather } from "@/hooks/useWeather";
 import { useGeolocation } from "@/hooks/useGeolocation";
-import { Cloud, MapPin, Wind, Zap } from "lucide-react";
+import { Cloud, MapPin, Zap } from "lucide-react";
 
 export default function Home() {
   const { data, loading, error, fetchWeather } = useWeather();
-  const { coords, error: geoError, loading: geoLoading } = useGeolocation();
+  const { coords, error: geoError } = useGeolocation();
   const [hasAutoDetected, setHasAutoDetected] = useState(false);
 
   // Auto-detect weather on load using geolocation
   useEffect(() => {
-    if (coords && !hasAutoDetected && !data) {
-      // In a real app, we'd reverse geocode here. 
-      // For this assessment, we'll use a default search or mock for the detected coords.
-      fetchWeather("London"); // Fallback for demo
-      setHasAutoDetected(true);
-    }
-  }, [coords, hasAutoDetected, data, fetchWeather]);
+    const detectWeather = async () => {
+      if (coords && !hasAutoDetected && !data) {
+        setHasAutoDetected(true);
+        await fetchWeather({ lat: coords.latitude, lon: coords.longitude });
+      } else if (geoError && !hasAutoDetected && !data) {
+        setHasAutoDetected(true);
+        fetchWeather("London"); // Fallback for demo
+      }
+    };
+    
+    detectWeather();
+  }, [coords, geoError, hasAutoDetected, data, fetchWeather]);
 
   return (
     <div className="min-h-screen flex flex-col font-sans relative">
@@ -63,8 +69,9 @@ export default function Home() {
         {data && (
           <>
             <WeatherHero data={data.weather} />
+            <WeatherInsights insights={data.insights} />
             <ForecastGrid forecast={data.weather.forecast} />
-            <WeatherMap location={data.weather.location} />
+            <WeatherMap location={data.weather.location} lat={data.weather.lat} lon={data.weather.lon} />
             <WeatherVideos videos={data.videos} />
           </>
         )}

@@ -28,7 +28,7 @@ export class YouTubeClient implements IVideoProvider {
     try {
       const response = await fetch(
         `${this.baseUrl}/search?part=snippet&maxResults=3&q=${encodeURIComponent(
-          `weather and travel in ${location}`
+          `${location} weather forecast and travel guide news`
         )}&type=video&key=${this.apiKey}`
       );
 
@@ -36,7 +36,7 @@ export class YouTubeClient implements IVideoProvider {
 
       const data = await response.json();
       
-      return data.items.map((item: any) => ({
+      return data.items.map((item: { id: { videoId: string }; snippet: { title: string; thumbnails: { high: { url: string } }; channelTitle: string } }) => ({
         id: item.id.videoId,
         title: item.snippet.title,
         thumbnail: item.snippet.thumbnails.high.url,
